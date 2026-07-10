@@ -42,3 +42,9 @@ id = "s2pRlnvN6ypOZG6J_K5LR"
 uri = "file://downloads/math-quiz-source.zip"
 type = "unspecified"
 title = "โค้ดเกมตอบคำถามคณิตศาสตร์ (math-quiz).zip"
+
+[[outputs]]
+id = "2waS6BwtV1vDh4Lsyvtd0"
+uri = "file://downloads/test.txt"
+type = "text"
+title = "ทดสอบดาวน์โหลด"
