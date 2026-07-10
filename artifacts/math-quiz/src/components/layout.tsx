@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'wouter';
-import { Menu, Home as HomeIcon, Volume2, VolumeX, Moon, Sun, HelpCircle, Users } from 'lucide-react';
+import { Menu, Home as HomeIcon, Volume2, VolumeX, Moon, Sun, HelpCircle, Users, Wrench } from 'lucide-react';
 import { useState } from 'react';
 import { useSettings } from '../hooks/use-settings';
 import { Sheet, SheetContent, SheetTitle } from './ui/sheet';
@@ -90,6 +90,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <Users className="w-6 h-6 text-secondary" />
             </span>
             <span className="text-lg font-bold text-foreground">คณะผู้จัดทำ</span>
+          </Link>
+
+          <Link
+            href="/tools"
+            onClick={() => { playClick(); setMenuOpen(false); }}
+            className="flex items-center gap-4 w-full p-5 bg-muted rounded-2xl active:scale-95 transition-all"
+          >
+            <span className="p-3 bg-background rounded-full shadow-sm text-foreground">
+              <Wrench className="w-6 h-6 text-primary" />
+            </span>
+            <span className="text-lg font-bold text-foreground">เครื่องมือที่ใช้พัฒนา</span>
           </Link>
         </SheetContent>
       </Sheet>
