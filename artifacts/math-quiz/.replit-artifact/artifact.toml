@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "เกมตอบคำถามคณิตศาสตร์"
+version = "1.0.0"
+id = "artifacts/math-quiz"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21389
+
+[services.development]
+run = "pnpm --filter @workspace/math-quiz run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/math-quiz", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/math-quiz/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21389"
+BASE_PATH = "/"

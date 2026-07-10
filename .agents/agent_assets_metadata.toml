@@ -1,0 +1,44 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "iBBJczoDRyCJo3xGLpsdK"
+uri = "file://attached_assets/generated_audio/wrong_answer.mp3"
+type = "audio"
+title = "wrong_answer"
+
+[[outputs]]
+id = "HNPAOO2riy7tjx7brgtXR"
+uri = "file://attached_assets/generated_audio/correct_answer.mp3"
+type = "audio"
+title = "correct_answer"
+
+[[outputs]]
+id = "Ui_XdPP8CWGz3UVkWdog_"
+uri = "file://attached_assets/generated_audio/button_click.mp3"
+type = "audio"
+title = "button_click"
+
+[[outputs]]
+id = "01uVY1Omv-vZoMEl0JUSB"
+uri = "file://attached_assets/generated_audio/wrong_answer_2.mp3"
+type = "audio"
+title = "wrong_answer"
+
+[[outputs]]
+id = "DGNfEIcUTb-UBLU5_4MRR"
+uri = "file://attached_assets/generated_audio/correct_answer_2.mp3"
+type = "audio"
+title = "correct_answer"
+
+[[outputs]]
+id = "7ltGlbevcak0-5XQn6HN8"
+uri = "file://attached_assets/generated_audio/math_quiz_bgm.mp3"
+type = "audio"
+title = "math_quiz_bgm"
+
+[[outputs]]
+id = "s2pRlnvN6ypOZG6J_K5LR"
+uri = "file://downloads/math-quiz-source.zip"
+type = "unspecified"
+title = "โค้ดเกมตอบคำถามคณิตศาสตร์ (math-quiz)"
