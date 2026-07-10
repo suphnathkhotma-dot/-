@@ -1,532 +1,284 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>คณิตศาสตร์ควิซ</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --paper:#F3EEDC;
-    --paper-grid: rgba(60,80,110,0.10);
-    --ink:#2B2A22;
-    --ink-dim:#726C58;
-    --red:#B23A2E;
-    --red-soft: rgba(178,58,46,0.14);
-    --green:#3C6B41;
-    --green-soft: rgba(60,107,65,0.14);
-    --line: rgba(43,42,34,0.22);
-    --line-soft: rgba(43,42,34,0.12);
-  }
-  [data-theme="dark"]{
-    --paper:#182420;
-    --paper-grid: rgba(230,232,220,0.06);
-    --ink:#ECE8D8;
-    --ink-dim:#93A18F;
-    --red:#E08770;
-    --red-soft: rgba(224,135,112,0.16);
-    --green:#8FC79A;
-    --green-soft: rgba(143,199,154,0.16);
-    --line: rgba(236,232,216,0.22);
-    --line-soft: rgba(236,232,216,0.1);
-  }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{height:100%;}
-  body{
-    margin:0;
-    font-family:'Sarabun',sans-serif;
-    background:var(--paper);
-    color:var(--ink);
-    min-height:100vh;
-    transition:background .4s ease, color .4s ease;
-  }
-
-  .page{
-    position:relative;
-    max-width:480px;
-    margin:0 auto;
-    min-height:100vh;
-    background-image:
-      linear-gradient(var(--paper-grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--paper-grid) 1px, transparent 1px);
-    background-size: 26px 26px;
-  }
-
-  /* spiral binder holes */
-  .holes{
-    position:absolute; top:0; bottom:0; left:6px; width:8px;
-    display:flex; flex-direction:column; justify-content:flex-start; gap:38px;
-    padding-top:70px;
-  }
-  .holes span{
-    display:block; width:7px; height:7px; border-radius:50%;
-    background:var(--paper);
-    border:1.5px solid var(--line-soft);
-    box-shadow: inset 0 0 0 2px var(--paper);
-  }
-
-  /* red margin rule */
-  .margin-line{
-    position:absolute; top:0; bottom:0; left:26px; width:1.5px;
-    background:var(--red); opacity:.45;
-  }
-
-  .content{ position:relative; padding: 20px 20px 60px 38px; }
-  .topbar{
-    display:flex; justify-content:flex-end; align-items:center; gap:8px;
-    margin-bottom: 10px;
-  }
-  .icon-btn{
-    width:36px; height:36px;
-    background:transparent; border:1.5px solid var(--line);
-    color:var(--ink); font-size:15px; cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-    transition:background .15s ease;
-  }
-  .icon-btn:hover{ background:var(--line-soft); }
-  .icon-btn:active{ transform:scale(.94); }
-
-  .screen{ display:none; }
-  .screen.active{ display:block; animation: rise .4s ease; }
-  @keyframes rise{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
-
-  /* ===== MENU ===== */
-  .kicker{
-    font-family:'Sarabun',sans-serif; font-weight:600; font-size:13px;
-    color:var(--ink-dim); margin-bottom:2px;
-  }
-  h1.title{
-    font-family:'Mali',cursive; font-weight:700; font-size:clamp(32px,9vw,42px);
-    margin:0 0 10px; line-height:1.15; color:var(--ink);
-  }
-  .title-rule{ width:100%; max-width:280px; margin-bottom:18px; }
-  .title-rule .l1{ height:2px; background:var(--ink); margin-bottom:3px; }
-  .title-rule .l2{ height:1px; background:var(--ink); opacity:.5; }
-
-  .cover-block{ margin: 4px 0 28px; }
-  .cover-row{
-    display:flex; align-items:baseline; gap:10px; padding:9px 0;
-    border-bottom:1px dashed var(--line);
-  }
-  .cover-row:first-child{ border-top:1px dashed var(--line); }
-  .cover-label{
-    font-family:'Sarabun',sans-serif; font-weight:600; font-size:13px;
-    color:var(--ink-dim); flex-shrink:0; width:82px;
-  }
-  .cover-value{
-    flex:1; font-family:'Mali',cursive; font-weight:600; font-size:16px;
-    color:var(--ink); outline:none; min-height:1.4em; word-break:break-word;
-  }
-  .cover-value:empty::before{
-    content: attr(data-placeholder);
-    font-family:'Sarabun',sans-serif; font-weight:400; font-size:13.5px;
-    color:var(--ink-dim); opacity:.6;
-  }
-  .cover-value:focus{ background:var(--line-soft); }
-
-  .instruction{
-    font-size:14.5px; color:var(--ink-dim); margin-bottom:28px; line-height:1.7;
-  }
-  .instruction b{ color:var(--ink); font-weight:600; }
-
-  .choice-list{ display:flex; flex-direction:column; }
-  .choice{
-    display:flex; align-items:center; gap:16px;
-    padding:18px 4px; border-bottom:1px dashed var(--line);
-    background:transparent; border-left:none; border-right:none; border-top:none;
-    cursor:pointer; width:100%; text-align:left; color:var(--ink);
-  }
-  .choice:first-child{ border-top:1px dashed var(--line); }
-  .bubble{
-    width:34px; height:34px; border-radius:50%; flex-shrink:0;
-    border:2px solid var(--ink); display:flex; align-items:center; justify-content:center;
-    font-family:'Mali',cursive; font-weight:700; font-size:16px;
-    transition:background .15s ease, color .15s ease, transform .15s ease;
-  }
-  .choice:active .bubble{ transform:scale(.9); }
-  .choice:hover .bubble{ background:var(--ink); color:var(--paper); }
-  .choice-text{ flex:1; }
-  .choice-title{ font-family:'Mali',cursive; font-weight:700; font-size:19px; margin-bottom:2px; }
-  .choice-sub{ font-size:13px; color:var(--ink-dim); }
-
-  .stamp{
-    display:inline-flex; align-items:center; gap:8px; margin-top:30px;
-    padding:9px 16px; border:2px solid var(--red); color:var(--red);
-    font-family:'Mali',cursive; font-weight:700; font-size:14px;
-    transform:rotate(-3deg); opacity:0; transition:opacity .2s ease;
-  }
-  .stamp.show{ opacity:1; }
-  .stamp .big{ font-size:19px; }
-
-  .section-heading{
-    font-family:'Sarabun',sans-serif; font-weight:600; font-size:13px;
-    color:var(--ink-dim); margin:36px 0 14px; padding-top:20px; border-top:1px solid var(--line-soft);
-  }
-  .chip-grid{
-    display:grid; grid-template-columns:1fr 1fr; gap:12px;
-  }
-  .chip{
-    display:flex; align-items:center; gap:10px;
-    border:1.5px solid var(--line); padding:13px 12px;
-    cursor:pointer; background:transparent; text-align:left; color:var(--ink);
-  }
-  .chip:hover{ border-color:var(--ink); background:var(--line-soft); }
-  .chip:active{ transform:scale(.97); }
-  .chip .sym{
-    width:28px; height:28px; border:1.5px solid var(--ink); border-radius:50%; flex-shrink:0;
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Mali',cursive; font-weight:700; font-size:15px;
-  }
-  .chip .lbl{ font-family:'Mali',cursive; font-weight:600; font-size:15.5px; }
-  .chip .cnt{ margin-left:auto; font-size:11.5px; color:var(--ink-dim); }
-  .chip.c-add .sym{ color:var(--green); border-color:var(--green); }
-  .chip.c-sub .sym{ color:var(--red); border-color:var(--red); }
-  .chip.c-mul .sym{ color:var(--ink); }
-  .chip.c-div .sym{ color:var(--ink-dim); }
-
-  .op-tag{
-    display:inline-block; font-size:12.5px; color:var(--ink-dim);
-    border:1px solid var(--line); padding:3px 10px; margin-bottom:8px;
-  }
-
-  /* ===== GAME ===== */
-  .grade-mark{
-    position:absolute; top:14px; right:16px;
-    display:flex; flex-direction:column; align-items:center;
-    color:var(--red); transform:rotate(6deg);
-  }
-  .grade-mark .circle{
-    width:58px; height:58px; border-radius:50%; border:2.5px solid var(--red);
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Mali',cursive; font-weight:700; font-size:20px;
-  }
-  .grade-mark .cap{ font-family:'Mali',cursive; font-size:11px; margin-top:3px; }
-
-  .qline{ font-size:13px; color:var(--ink-dim); margin-bottom:6px; }
-  .question{
-    font-family:'Mali',cursive; font-weight:700; font-size:clamp(24px,7vw,30px);
-    margin-bottom:26px; padding-bottom:16px; border-bottom:1px solid var(--line);
-    padding-right:70px;
-  }
-  .question .num{ color:var(--red); }
-
-  .answers{ display:flex; flex-direction:column; }
-  .ans-row{
-    display:flex; align-items:center; gap:16px;
-    padding:14px 4px; border-bottom:1px dashed var(--line);
-    background:transparent; border-left:none; border-right:none; border-top:none;
-    cursor:pointer; width:100%; text-align:left; color:var(--ink);
-  }
-  .ans-row:first-child{ border-top:1px dashed var(--line); }
-  .ans-bubble{
-    width:32px; height:32px; border-radius:50%; flex-shrink:0;
-    border:2px solid var(--ink); display:flex; align-items:center; justify-content:center;
-    font-family:'Mali',cursive; font-weight:700; font-size:14.5px;
-    transition:all .15s ease;
-  }
-  .ans-val{ font-family:'Sarabun',sans-serif; font-weight:600; font-size:17px; }
-  .ans-row[disabled]{ pointer-events:none; }
-  .ans-row.correct .ans-bubble{ background:var(--green); border-color:var(--green); color:var(--paper); }
-  .ans-row.correct .ans-val{ color:var(--green); font-weight:700; }
-  .ans-row.wrong .ans-bubble{ background:var(--red); border-color:var(--red); color:var(--paper); }
-  .ans-row.wrong .ans-val{ color:var(--red); text-decoration:line-through; }
-
-  .feedback{
-    font-family:'Mali',cursive; font-weight:600; font-size:16px;
-    margin-top:20px; min-height:22px; opacity:0; transition:opacity .2s ease;
-    transform:rotate(-1deg);
-  }
-  .feedback.show{ opacity:1; }
-  .feedback.good-text{ color:var(--green); }
-  .feedback.bad-text{ color:var(--red); }
-
-  .exit-link{
-    margin-top:30px; color:var(--ink-dim); font-size:13px; cursor:pointer;
-    text-decoration:underline; text-decoration-style:dotted; text-underline-offset:4px;
-  }
-  .exit-link:hover{ color:var(--ink); }
-
-  /* ===== GROUP ===== */
-  .group-header{ margin-bottom:6px; }
-  .group-header .kicker{ margin-bottom:2px; }
-  .roster{ margin-top:22px; }
-  .roster-row{
-    display:flex; align-items:baseline; gap:10px; padding:14px 2px;
-    border-bottom:1px dashed var(--line);
-  }
-  .roster-row:first-child{ border-top:1px dashed var(--line); }
-  .roster-num{ font-family:'Mali',cursive; font-weight:700; color:var(--ink-dim); font-size:15px; width:18px; flex-shrink:0; }
-  .roster-name{ font-family:'Mali',cursive; font-weight:600; font-size:19px; flex:1; }
-  .roster-role{ font-size:12.5px; color:var(--ink-dim); flex-shrink:0; }
-
-  .back-btn{
-    margin-top:30px; font-family:'Sarabun',sans-serif; font-weight:600; font-size:13px;
-    background:transparent; border:1.5px solid var(--line); color:var(--ink-dim);
-    padding:10px 20px; cursor:pointer;
-  }
-  .back-btn:hover{ border-color:var(--ink); color:var(--ink); }
-
-  @media (prefers-reduced-motion: reduce){
-    .screen.active{ animation:none; }
-  }
-  :focus-visible{ outline:2px solid var(--red); outline-offset:2px; }
-</style>
-</head>
-<body data-theme="light">
-<div class="page">
-  <div class="holes">
-    <span></span><span></span><span></span><span></span><span></span>
-    <span></span><span></span><span></span><span></span><span></span>
-    <span></span><span></span><span></span><span></span>
-  </div>
-  <div class="margin-line"></div>
-
-  <div class="content">
-    <div class="topbar">
-      <button class="icon-btn" id="themeBtn" aria-label="สลับธีม" title="สลับธีม">☀</button>
-      <button class="icon-btn" id="soundBtn" aria-label="เปิด/ปิดเสียง" title="เปิด/ปิดเสียง">♪</button>
-    </div>
-
-    <!-- MENU -->
-    <section class="screen active" id="screen-menu">
-      <div class="kicker">แบบฝึกหัด · บวก ลบ คูณ หาร</div>
-      <h1 class="title">คณิตศาสตร์ควิซ</h1>
-      <div class="title-rule"><div class="l1"></div><div class="l2"></div></div>
-
-      <div class="cover-block">
-        <div class="cover-row">
-          <div class="cover-label">รายวิชา</div>
-          <div class="cover-value" contenteditable="true" data-placeholder="แตะเพื่อกรอกชื่อวิชา"></div>
-        </div>
-        <div class="cover-row">
-          <div class="cover-label">ครูผู้สอน</div>
-          <div class="cover-value" contenteditable="true" data-placeholder="แตะเพื่อกรอกชื่อครูผู้สอน"></div>
-        </div>
-        <div class="cover-row">
-          <div class="cover-label">ชั้นเรียน</div>
-          <div class="cover-value" contenteditable="true" data-placeholder="แตะเพื่อกรอกชั้น/ห้อง"></div>
-        </div>
-        <div class="cover-row">
-          <div class="cover-label">วันที่ส่ง</div>
-          <div class="cover-value" contenteditable="true" data-placeholder="แตะเพื่อกรอกวันที่ส่งงาน"></div>
-        </div>
-      </div>
-
-      <div class="instruction"><b>คำสั่ง:</b> เลือกข้อที่ต้องการ แล้วแตะเพื่อเริ่ม</div>
-
-      <div class="choice-list">
-        <button class="choice" onclick="goTo('category')">
-          <div class="bubble">ก</div>
-          <div class="choice-text">
-            <div class="choice-title">เริ่มเล่นเกม</div>
-            <div class="choice-sub">เลือกหมวดโจทย์ แล้วเริ่มทำ</div>
-          </div>
-        </button>
-        <button class="choice" onclick="goTo('group')">
-          <div class="bubble">ข</div>
-          <div class="choice-text">
-            <div class="choice-title">สมาชิกในกลุ่ม</div>
-            <div class="choice-sub">ผู้จัดทำโปรเจกต์นี้</div>
-          </div>
-        </button>
-      </div>
-
-      <div class="stamp" id="bestStamp">คะแนนล่าสุด <span class="big" id="bestStampVal">0</span></div>
-    </section>
-
-    <!-- CATEGORY -->
-    <section class="screen" id="screen-category">
-      <div class="kicker">แบบฝึกหัด</div>
-      <h1 class="title">เลือกหมวดโจทย์</h1>
-      <div class="title-rule"><div class="l1"></div><div class="l2"></div></div>
-      <div class="instruction"><b>คำสั่ง:</b> เลือกประเภทโจทย์ที่ต้องการฝึก</div>
-
-      <div class="choice-list">
-        <button class="choice" onclick="startGame('+')">
-          <div class="bubble">ก</div>
-          <div class="choice-text">
-            <div class="choice-title">โจทย์บวก</div>
-            <div class="choice-sub">เช่น 8 + 5 = ?</div>
-          </div>
-        </button>
-        <button class="choice" onclick="startGame('-')">
-          <div class="bubble">ข</div>
-          <div class="choice-text">
-            <div class="choice-title">โจทย์ลบ</div>
-            <div class="choice-sub">เช่น 14 − 6 = ?</div>
-          </div>
-        </button>
-        <button class="choice" onclick="startGame('×')">
-          <div class="bubble">ค</div>
-          <div class="choice-text">
-            <div class="choice-title">โจทย์คูณ</div>
-            <div class="choice-sub">เช่น 7 × 3 = ?</div>
-          </div>
-        </button>
-        <button class="choice" onclick="startGame('÷')">
-          <div class="bubble">ง</div>
-          <div class="choice-text">
-            <div class="choice-title">โจทย์หาร</div>
-            <div class="choice-sub">เช่น 24 ÷ 6 = ?</div>
-          </div>
-        </button>
-        <button class="choice" onclick="startGame('^')">
-          <div class="bubble">จ</div>
-          <div class="choice-text">
-            <div class="choice-title">เลขยกกำลัง</div>
-            <div class="choice-sub">เช่น 5² = ?</div>
-          </div>
-        </button>
-        <button class="choice" onclick="startGame('sqrt')">
-          <div class="bubble">ฉ</div>
-          <div class="choice-text">
-            <div class="choice-title">สแควรูท</div>
-            <div class="choice-sub">เช่น √49 = ?</div>
-          </div>
-        </button>
-        <button class="choice" onclick="startGame('compare')">
-          <div class="bubble">ช</div>
-          <div class="choice-text">
-            <div class="choice-title">เครื่องหมายเปรียบเทียบ</div>
-            <div class="choice-sub">เช่น 8 ▢ 5</div>
-          </div>
-        </button>
-        <button class="choice" onclick="startGame('mixed')">
-          <div class="bubble">ซ</div>
-          <div class="choice-text">
-            <div class="choice-title">โจทย์รวม</div>
-            <div class="choice-sub">สุ่มบวก ลบ คูณ หาร</div>
-          </div>
-        </button>
-      </div>
-
-      <div class="exit-link" onclick="goTo('menu')">กลับเมนูหลัก</div>
-    </section>
-
-    <!-- GAME -->
-    <section class="screen" id="screen-game" style="position:relative;">
-      <div class="grade-mark">
-        <div class="circle" id="scoreVal">0</div>
-        <div class="cap">คะแนน</div>
-      </div>
-      <div class="op-tag" id="opTag">หมวด: รวม</div>
-      <div class="qline" id="qCount">ข้อ 1</div>
-      <div class="question"><span class="num" id="qNumLabel">1.</span> <span id="equation">— —</span></div>
-      <div class="answers" id="answers"></div>
-      <div class="feedback" id="feedback"></div>
-      <div class="exit-link" onclick="goTo('menu')">กลับเมนูหลัก</div>
-    </section>
-
-    <!-- GROUP -->
-    <section class="screen" id="screen-group">
-      <div class="group-header">
-        <div class="kicker">ปกรายงาน</div>
-        <h1 class="title">สมาชิกในกลุ่ม</h1>
-        <div class="title-rule"><div class="l1"></div><div class="l2"></div></div>
-      </div>
-      <div class="roster" id="memberList"></div>
-      <button class="back-btn" onclick="goTo('menu')">← กลับเมนูหลัก</button>
-    </section>
-  </div>
-</div>
-
-<script>
-let score = 0;
-let qNum = 1;
-let usedQuestions = new Set();
-let correctAnswer = null;
-let soundOn = true;
-let isDark = false;
-let audioCtx = null;
-let bestScore = 0;
-let currentOp = 'mixed';
-
-const letters = ['ก','ข','ค','ง'];
-const thaiMonths = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-
-(function fillTodayDate(){
-  const dateEl = document.querySelectorAll('.cover-value')[3];
-  if(dateEl){
-    const d = new Date();
-    dateEl.textContent = `${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear() + 543}`;
-  }
-})();
-const opNames = { '+':'บวก', '-':'ลบ', '×':'คูณ', '÷':'หาร', '^':'เลขยกกำลัง', 'sqrt':'สแควรูท', 'compare':'เปรียบเทียบ', 'mixed':'รวม' };
-const groupMembers = [
-  { name: "สมชาย ใจดี", role: "หัวหน้ากลุ่ม" },
-  { name: "น้องเมย์ สดใส", role: "สมาชิก" },
-  { name: "พี่โจ โค้ดเดอร์", role: "สมาชิก" }
-];
-
-function goTo(screen){
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + screen).classList.add('active');
-  if(screen === 'group') renderGroup();
-  if(screen === 'menu') updateStamp();
-}
-
-function startGame(op){
-  currentOp = op;
-  goTo('game');
-  resetGame();
-}
-
-function renderGroup(){
-  document.getElementById('memberList').innerHTML = groupMembers.map((m,i) =>
-    `<div class="roster-row">
-       <div class="roster-num">${i+1}.</div>
-       <div class="roster-name">${m.name}</div>
-       <div class="roster-role">${m.role}</div>
-     </div>`
-  ).join('');
-}
-
-function updateStamp(){
-  const el = document.getElementById('bestStamp');
-  if(bestScore > 0){
-    document.getElementById('bestStampVal').textContent = bestScore;
-    el.classList.add('show');
-  }
-}
-
-document.getElementById('themeBtn').addEventListener('click', () => {
-  isDark = !isDark;
-  document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
-  document.getElementById('themeBtn').textContent = isDark ? '☾' : '☀';
-});
-
-document.getElementById('soundBtn').addEventListener('click', () => {
-  soundOn = !soundOn;
-  document.getElementById('soundBtn').style.opacity = soundOn ? '1' : '0.4';
-});
-
-function beep(freq, dur){
-  if(!soundOn) return;
-  try{
-    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + dur);
-  }catch(e){}
-}
-
-function generateQuestion(){
-  if(currentOp === '^') return genPower();
-  if(currentOp === 'sqrt') return genSqrt();
-  if(currentOp === 'compare') return genCompare();
-  return genArithmetic();
-}
-
 function genArithmetic(){
   const ops = currentOp === 'mixed' ? ['+', '-', '×', '÷'] : [currentOp];
+
   let a, b, op, correct;
+
   while(true){
     op = ops[Math.floor(Math.random() * ops.length)];
+
     if(op === '÷'){
-    
+      b = Math.floor(Math.random() * 11) + 2;
+      const c = Math.floor(Math.random() * 13) + 3;
+      a = b * c;
+    }else{
+      a = Math.floor(Math.random() * 30) + 1;
+      b = Math.floor(Math.random() * 20) + 1;
+    }
+
+    if(op === '-' && a < b){
+      [a, b] = [b, a];
+    }
+
+    const key = `arith-${a}${op}${b}`;
+
+    if(!usedQuestions.has(key)){
+      usedQuestions.add(key);
+      break;
+    }
+  }
+
+  switch(op){
+    case '+':
+      correct = a + b;
+      break;
+    case '-':
+      correct = a - b;
+      break;
+    case '×':
+      correct = a * b;
+      break;
+    case '÷':
+      correct = a / b;
+      break;
+  }
+
+  const wrongs = [];
+
+  while(wrongs.length < 3){
+    const w = correct + (Math.floor(Math.random()*11)-5);
+
+    if(w > 0 && w !== correct && !wrongs.includes(w)){
+      wrongs.push(w);
+    }
+  }
+
+  const answers = [correct, ...wrongs].sort(()=>Math.random()-0.5);
+
+  return{
+    text:`${a} ${op} ${b} = ?`,
+    correct:String(correct),
+    answers:answers.map(String)
+  };
+}
+    function genPower(){
+  let base, exp, key;
+
+  do{
+    base = Math.floor(Math.random()*9)+2;
+    exp = Math.random()<0.7 ? 2 : 3;
+    key = `pow-${base}-${exp}`;
+  }while(usedQuestions.has(key));
+
+  usedQuestions.add(key);
+
+  const correct = Math.pow(base,exp);
+  const sup = exp===2 ? "²" : "³";
+
+  const wrongs=[];
+
+  while(wrongs.length<3){
+    const w = correct + (Math.floor(Math.random()*11)-5);
+
+    if(w>0 && w!==correct && !wrongs.includes(w)){
+      wrongs.push(w);
+    }
+  }
+
+  const answers=[correct,...wrongs].sort(()=>Math.random()-0.5);
+
+  return{
+    text:`${base}${sup} = ?`,
+    correct:String(correct),
+    answers:answers.map(String)
+  };
+}
+
+function genSqrt(){
+  let n,key;
+
+  do{
+    n = Math.floor(Math.random()*14)+2;
+    key=`sqrt-${n}`;
+  }while(usedQuestions.has(key));
+
+  usedQuestions.add(key);
+
+  const square=n*n;
+
+  const wrongs=[];
+
+  while(wrongs.length<3){
+    const w=n+(Math.floor(Math.random()*7)-3);
+
+    if(w>0 && w!==n && !wrongs.includes(w)){
+      wrongs.push(w);
+    }
+  }
+
+  const answers=[n,...wrongs].sort(()=>Math.random()-0.5);
+
+  return{
+    text:`√${square} = ?`,
+    correct:String(n),
+    answers:answers.map(String)
+  };
+}
+
+function genCompare(){
+  let a,b,key;
+
+  do{
+    a=Math.floor(Math.random()*50)+1;
+    b=Math.floor(Math.random()*50)+1;
+    key=`cmp-${a}-${b}`;
+  }while(usedQuestions.has(key));
+
+  usedQuestions.add(key);
+
+  let correct;
+
+  if(a>b){
+    correct=">";
+  }else if(a<b){
+    correct="<";
+  }else{
+    correct="=";
+  }
+
+  const answers=[">","<","="].sort(()=>Math.random()-0.5);
+
+  return{
+    text:`${a} ▢ ${b}`,
+    correct,
+    answers
+  };
+}
+    function resetGame(){
+  score = 0;
+  qNum = 1;
+  usedQuestions.clear();
+
+  document.getElementById("scoreVal").textContent = score;
+  document.getElementById("opTag").textContent =
+    "หมวด: " + opNames[currentOp];
+
+  nextQuestion();
+}
+
+function nextQuestion(){
+
+  const q = generateQuestion();
+
+  correctAnswer = q.correct;
+
+  document.getElementById("equation").textContent = q.text;
+  document.getElementById("qNumLabel").textContent = qNum + ".";
+  document.getElementById("qCount").textContent = `ข้อ ${qNum}`;
+
+  const answers = document.getElementById("answers");
+  answers.innerHTML = "";
+
+  q.answers.forEach((ans,index)=>{
+
+    const btn = document.createElement("button");
+    btn.className = "ans-row";
+
+    btn.innerHTML = `
+      <div class="ans-bubble">${letters[index]}</div>
+      <div class="ans-val">${ans}</div>
+    `;
+
+    btn.onclick = ()=>checkAnswer(ans,btn);
+
+    answers.appendChild(btn);
+
+  });
+
+  const fb = document.getElementById("feedback");
+  fb.textContent = "";
+  fb.className = "feedback";
+}
+
+function checkAnswer(answer,btn){
+
+  const all = document.querySelectorAll(".ans-row");
+
+  all.forEach(x=>x.disabled=true);
+
+  const fb = document.getElementById("feedback");
+
+  if(String(answer)===String(correctAnswer)){
+
+      score += 10;
+
+      btn.classList.add("correct");
+
+      fb.textContent = "✔ ตอบถูก +10 คะแนน";
+
+      fb.className = "feedback show good-text";
+
+      beep(650,0.15);
+
+  }else{
+
+      btn.classList.add("wrong");
+
+      all.forEach(item=>{
+
+          if(item.querySelector(".ans-val").textContent===String(correctAnswer)){
+              item.classList.add("correct");
+          }
+
+      });
+
+      fb.textContent = `✘ ตอบผิด คำตอบคือ ${correctAnswer}`;
+
+      fb.className = "feedback show bad-text";
+
+      beep(220,0.2);
+
+  }
+
+  document.getElementById("scoreVal").textContent = score;
+
+  if(score>bestScore){
+      bestScore = score;
+      updateStamp();
+  }
+
+  qNum++;
+
+  if(qNum<=10){
+
+      setTimeout(nextQuestion,900);
+
+  }else{
+
+      setTimeout(()=>{
+
+          alert(`จบเกม!\n\nคะแนนของคุณ ${score} / 100`);
+
+          goTo("menu");
+
+      },1000);
+
+  }
+
+}
+    window.addEventListener("load", () => {
+
+  updateStamp();
+
+  document.getElementById("scoreVal").textContent = score;
+
+});
+
+document.addEventListener("keydown", (e) => {
+
+  if (e.key === "Escape") {
+    goTo("menu");
+  }
+
+});
+
+goTo("menu");
