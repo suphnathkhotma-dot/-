@@ -1,5 +1,5 @@
 import { Link } from 'wouter';
-import { Users, User, ArrowLeft, Heart } from 'lucide-react';
+import { Users, User, ArrowLeft, Heart, Wrench } from 'lucide-react';
 import { useSettings } from '../hooks/use-settings';
 import { Layout } from '../components/layout';
 
@@ -15,13 +15,6 @@ export default function About() {
     { role: 'สมาชิก', name: 'อภิญญา นิยมส์ย์', id: '7' },
   ];
 
-  const tools = [
-    { name: 'Google Gemini', logo: 'logos/gemini.png', desc: 'ช่วยวางแผนระบบ วิเคราะห์โครงสร้าง และเสนอแนวทางการออกแบบเว็บไซต์' },
-    { name: 'GitHub', logo: 'logos/github.png', desc: 'ใช้จัดเก็บซอร์สโค้ด ควบคุมเวอร์ชัน และจัดระเบียบไฟล์ภายในโปรเจกต์' },
-    { name: 'Google Stitch', logo: 'logos/stitch.png', desc: 'ใช้ออกแบบหน้าตาเว็บไซต์ (UI) และสร้างต้นแบบการใช้งาน (Prototype)' },
-    { name: 'Vercel', logo: 'logos/vercel.png', desc: 'ใช้สำหรับเผยแพร่เว็บไซต์ (Deploy) และสร้างลิงก์สำหรับเข้าถึงเว็บไซต์ผ่านอินเทอร์เน็ต' },
-    { name: 'Grok', logo: 'logos/grok.jpg', desc: 'ช่วยแนะนำและพัฒนาโค้ดบางส่วนเพื่อเพิ่มประสิทธิภาพในการทำงาน' },
-  ];
 
   return (
     <Layout>
@@ -60,22 +53,14 @@ export default function About() {
           ))}
         </div>
 
-        <div className="mb-8">
-          <h2 className="text-lg font-bold text-foreground mb-3 text-center">เครื่องมือที่ใช้พัฒนา</h2>
-          <div className="space-y-3">
-            {tools.map((t, i) => (
-              <div key={i} className="flex items-center gap-4 p-3 md:p-4 bg-muted rounded-2xl">
-                <div className="w-12 h-12 shrink-0 rounded-xl bg-background border border-border shadow-sm flex items-center justify-center overflow-hidden p-1.5">
-                  <img src={`${import.meta.env.BASE_URL}${t.logo}`} alt={`${t.name} logo`} className="w-full h-full object-contain" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-foreground">{t.name}</p>
-                  <p className="text-xs md:text-sm text-muted-foreground leading-snug">{t.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <Link
+          href="/tools"
+          onClick={() => playClick()}
+          className="flex items-center justify-center gap-2 w-full py-4 mb-4 bg-primary text-primary-foreground font-bold rounded-2xl border-b-4 border-primary-foreground/20 shadow-md hover:-translate-y-1 active:scale-95 transition-all text-xl"
+        >
+          <Wrench className="w-6 h-6" />
+          เครื่องมือที่ใช้พัฒนา
+        </Link>
 
         <Link
           href="/"

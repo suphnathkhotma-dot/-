@@ -3,6 +3,7 @@ import { Route, Switch, Router as WouterRouter } from 'wouter';
 import Home from './pages/home';
 import Play from './pages/play';
 import About from './pages/about';
+import Tools from './pages/tools';
 import HowToPlay from './pages/how-to-play';
 import NotFound from '@/pages/not-found';
 import { SettingsProvider } from './hooks/use-settings';
@@ -15,6 +16,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/play" component={Play} />
       <Route path="/about" component={About} />
+      <Route path="/tools" component={Tools} />
       <Route path="/how-to-play" component={HowToPlay} />
       <Route component={NotFound} />
     </Switch>
