@@ -1,284 +1,44 @@
-function genArithmetic(){
-  const ops = currentOp === 'mixed' ? ['+', '-', '×', '÷'] : [currentOp];
-
-  let a, b, op, correct;
-
-  while(true){
-    op = ops[Math.floor(Math.random() * ops.length)];
-
-    if(op === '÷'){
-      b = Math.floor(Math.random() * 11) + 2;
-      const c = Math.floor(Math.random() * 13) + 3;
-      a = b * c;
-    }else{
-      a = Math.floor(Math.random() * 30) + 1;
-      b = Math.floor(Math.random() * 20) + 1;
-    }
-
-    if(op === '-' && a < b){
-      [a, b] = [b, a];
-    }
-
-    const key = `arith-${a}${op}${b}`;
-
-    if(!usedQuestions.has(key)){
-      usedQuestions.add(key);
-      break;
-    }
-  }
-
-  switch(op){
-    case '+':
-      correct = a + b;
-      break;
-    case '-':
-      correct = a - b;
-      break;
-    case '×':
-      correct = a * b;
-      break;
-    case '÷':
-      correct = a / b;
-      break;
-  }
-
-  const wrongs = [];
-
-  while(wrongs.length < 3){
-    const w = correct + (Math.floor(Math.random()*11)-5);
-
-    if(w > 0 && w !== correct && !wrongs.includes(w)){
-      wrongs.push(w);
-    }
-  }
-
-  const answers = [correct, ...wrongs].sort(()=>Math.random()-0.5);
-
-  return{
-    text:`${a} ${op} ${b} = ?`,
-    correct:String(correct),
-    answers:answers.map(String)
-  };
-}
-    function genPower(){
-  let base, exp, key;
-
-  do{
-    base = Math.floor(Math.random()*9)+2;
-    exp = Math.random()<0.7 ? 2 : 3;
-    key = `pow-${base}-${exp}`;
-  }while(usedQuestions.has(key));
-
-  usedQuestions.add(key);
-
-  const correct = Math.pow(base,exp);
-  const sup = exp===2 ? "²" : "³";
-
-  const wrongs=[];
-
-  while(wrongs.length<3){
-    const w = correct + (Math.floor(Math.random()*11)-5);
-
-    if(w>0 && w!==correct && !wrongs.includes(w)){
-      wrongs.push(w);
-    }
-  }
-
-  const answers=[correct,...wrongs].sort(()=>Math.random()-0.5);
-
-  return{
-    text:`${base}${sup} = ?`,
-    correct:String(correct),
-    answers:answers.map(String)
-  };
-}
-
-function genSqrt(){
-  let n,key;
-
-  do{
-    n = Math.floor(Math.random()*14)+2;
-    key=`sqrt-${n}`;
-  }while(usedQuestions.has(key));
-
-  usedQuestions.add(key);
-
-  const square=n*n;
-
-  const wrongs=[];
-
-  while(wrongs.length<3){
-    const w=n+(Math.floor(Math.random()*7)-3);
-
-    if(w>0 && w!==n && !wrongs.includes(w)){
-      wrongs.push(w);
-    }
-  }
-
-  const answers=[n,...wrongs].sort(()=>Math.random()-0.5);
-
-  return{
-    text:`√${square} = ?`,
-    correct:String(n),
-    answers:answers.map(String)
-  };
-}
-
-function genCompare(){
-  let a,b,key;
-
-  do{
-    a=Math.floor(Math.random()*50)+1;
-    b=Math.floor(Math.random()*50)+1;
-    key=`cmp-${a}-${b}`;
-  }while(usedQuestions.has(key));
-
-  usedQuestions.add(key);
-
-  let correct;
-
-  if(a>b){
-    correct=">";
-  }else if(a<b){
-    correct="<";
-  }else{
-    correct="=";
-  }
-
-  const answers=[">","<","="].sort(()=>Math.random()-0.5);
-
-  return{
-    text:`${a} ▢ ${b}`,
-    correct,
-    answers
-  };
-}
-    function resetGame(){
-  score = 0;
-  qNum = 1;
-  usedQuestions.clear();
-
-  document.getElementById("scoreVal").textContent = score;
-  document.getElementById("opTag").textContent =
-    "หมวด: " + opNames[currentOp];
-
-  nextQuestion();
-}
-
-function nextQuestion(){
-
-  const q = generateQuestion();
-
-  correctAnswer = q.correct;
-
-  document.getElementById("equation").textContent = q.text;
-  document.getElementById("qNumLabel").textContent = qNum + ".";
-  document.getElementById("qCount").textContent = `ข้อ ${qNum}`;
-
-  const answers = document.getElementById("answers");
-  answers.innerHTML = "";
-
-  q.answers.forEach((ans,index)=>{
-
-    const btn = document.createElement("button");
-    btn.className = "ans-row";
-
-    btn.innerHTML = `
-      <div class="ans-bubble">${letters[index]}</div>
-      <div class="ans-val">${ans}</div>
-    `;
-
-    btn.onclick = ()=>checkAnswer(ans,btn);
-
-    answers.appendChild(btn);
-
-  });
-
-  const fb = document.getElementById("feedback");
-  fb.textContent = "";
-  fb.className = "feedback";
-}
-
-function checkAnswer(answer,btn){
-
-  const all = document.querySelectorAll(".ans-row");
-
-  all.forEach(x=>x.disabled=true);
-
-  const fb = document.getElementById("feedback");
-
-  if(String(answer)===String(correctAnswer)){
-
-      score += 10;
-
-      btn.classList.add("correct");
-
-      fb.textContent = "✔ ตอบถูก +10 คะแนน";
-
-      fb.className = "feedback show good-text";
-
-      beep(650,0.15);
-
-  }else{
-
-      btn.classList.add("wrong");
-
-      all.forEach(item=>{
-
-          if(item.querySelector(".ans-val").textContent===String(correctAnswer)){
-              item.classList.add("correct");
-          }
-
-      });
-
-      fb.textContent = `✘ ตอบผิด คำตอบคือ ${correctAnswer}`;
-
-      fb.className = "feedback show bad-text";
-
-      beep(220,0.2);
-
-  }
-
-  document.getElementById("scoreVal").textContent = score;
-
-  if(score>bestScore){
-      bestScore = score;
-      updateStamp();
-  }
-
-  qNum++;
-
-  if(qNum<=10){
-
-      setTimeout(nextQuestion,900);
-
-  }else{
-
-      setTimeout(()=>{
-
-          alert(`จบเกม!\n\nคะแนนของคุณ ${score} / 100`);
-
-          goTo("menu");
-
-      },1000);
-
-  }
-
-}
-    window.addEventListener("load", () => {
-
-  updateStamp();
-
-  document.getElementById("scoreVal").textContent = score;
-
-});
-
-document.addEventListener("keydown", (e) => {
-
-  if (e.key === "Escape") {
-    goTo("menu");
-  }
-
-});
-
-goTo("menu");
+uploads = []
+generated = []
+
+[[outputs]]
+id = "iBBJczoDRyCJo3xGLpsdK"
+uri = "file://attached_assets/generated_audio/wrong_answer.mp3"
+type = "audio"
+title = "wrong_answer"
+
+[[outputs]]
+id = "HNPAOO2riy7tjx7brgtXR"
+uri = "file://attached_assets/generated_audio/correct_answer.mp3"
+type = "audio"
+title = "correct_answer"
+
+[[outputs]]
+id = "Ui_XdPP8CWGz3UVkWdog_"
+uri = "file://attached_assets/generated_audio/button_click.mp3"
+type = "audio"
+title = "button_click"
+
+[[outputs]]
+id = "01uVY1Omv-vZoMEl0JUSB"
+uri = "file://attached_assets/generated_audio/wrong_answer_2.mp3"
+type = "audio"
+title = "wrong_answer"
+
+[[outputs]]
+id = "DGNfEIcUTb-UBLU5_4MRR"
+uri = "file://attached_assets/generated_audio/correct_answer_2.mp3"
+type = "audio"
+title = "correct_answer"
+
+[[outputs]]
+id = "7ltGlbevcak0-5XQn6HN8"
+uri = "file://attached_assets/generated_audio/math_quiz_bgm.mp3"
+type = "audio"
+title = "math_quiz_bgm"
+
+[[outputs]]
+id = "s2pRlnvN6ypOZG6J_K5LR"
+uri = "file://downloads/math-quiz-source.zip"
+type = "unspecified"
+title = "โค้ดเกมตอบคำถามคณิตศาสตร์ (math-quiz)"
