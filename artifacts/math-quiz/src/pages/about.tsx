@@ -1,5 +1,5 @@
 import { Link } from 'wouter';
-import { Users, User, ArrowLeft, Heart, Wrench } from 'lucide-react';
+import { Users, User, ArrowLeft, Heart } from 'lucide-react';
 import { useSettings } from '../hooks/use-settings';
 import { Layout } from '../components/layout';
 
@@ -52,15 +52,6 @@ export default function About() {
             </div>
           ))}
         </div>
-
-        <Link
-          href="/tools"
-          onClick={() => playClick()}
-          className="flex items-center justify-center gap-2 w-full py-4 mb-4 bg-primary text-primary-foreground font-bold rounded-2xl border-b-4 border-primary-foreground/20 shadow-md hover:-translate-y-1 active:scale-95 transition-all text-xl"
-        >
-          <Wrench className="w-6 h-6" />
-          เครื่องมือที่ใช้พัฒนา
-        </Link>
 
         <Link
           href="/"
